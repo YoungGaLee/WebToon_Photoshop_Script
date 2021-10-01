@@ -11,7 +11,7 @@
 <br>
 
 
-## detail
+## Detail
 
 #### [해결] Error 1 ) excel sheet 불러오기
 Excel sheet 불러오는 방식을  ‘시트이름으로 불러오기’ >> ‘Active sheet를 불러오기’ 변경
