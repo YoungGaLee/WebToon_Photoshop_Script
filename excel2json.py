@@ -1,7 +1,6 @@
 import os
 from psd_tools import PSDImage
 from openpyxl import load_workbook
-import math
 import numpy as np
 import json
 
@@ -40,58 +39,32 @@ for path in (file_list):
         psd_name_list.append(path)
         path_jsx_json.append(file_path)
         psd = PSDImage.open(path)
+
         psd_height_list.append(psd.height)
         webtoon_height += psd.height
         psd_end_point_psd.append(webtoon_height)
 
 
-# TODO : 전체 psd height
-# print(webtoon_height)
-
 webtoon_width = psd.width
-# print(excel_imgs_height)
-
-# TODO : 해당 psd height
-# print(psd_height_list) ### 이거 사용
-# [11007, 12000, 11397, 10891, 11115, 8482]
-
 excel2psd = webtoon_height / excel_imgs_height
 psd2excel = excel_imgs_height / webtoon_height
 
-# TODO : 전체 img row값
-# ㅇㅇ 이거 범용성 있는거 맞음. rowoff값을 구하기 위해서 하는 작업이라
-end_row = web_imgs_excel[-1].anchor._from.row   # 2671
-# web_imgs_excel[1].anchor._from.row  # 0번째 이미지의 cell 개수
+end_row = web_imgs_excel[-1].anchor._from.row
 final = np.around((web_imgs_excel[1].anchor._from.row/web_imgs_excel[0].height) *web_imgs_excel[-1].height)
 final_end_row = end_row + final
 
 
-
-
-
-# TODO : 구하고 싶은 값 / 각 psd에 해당하는 row 개수
 psd_row_list = np.around(np.array(psd_height_list) * (final_end_row / webtoon_height))
-# TODO : ratio
-# 대사 row * (psd_height_list[0] / psd_row_list[0]) = psd해당하는 좌표값
 every_ratio_row2psd = np.array(psd_height_list)/ np.array(psd_row_list)
 
 
-
-
-
-
 psd_num = len(psd_name_list)
-
 max_col = excel_sheet.max_column
 min_col = excel_sheet.min_column
 max_row = excel_sheet.max_row
 
 
-
-
-
 cell_count_per_psd_list = psd_row_list
-
 with open('jsonFile.json', 'w', encoding='UTF-8') as w:
     json_file = {'psdPath' : path_jsx_json, 'psdName' : psd_name_list}
 
@@ -103,7 +76,7 @@ with open('jsonFile.json', 'w', encoding='UTF-8') as w:
     json_psd = []
 
 
-    for r in range(1,max_row):
+    for r in range(1,max_row+1):
         psd_x = webtoon_width//4
         count += 1
         if count > cell_count_per_psd_list[boundary]:
