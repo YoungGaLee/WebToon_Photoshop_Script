@@ -1,4 +1,5 @@
 # WebToon_Photoshop_Script
+<<<<<<< HEAD
 
 
 ## 문제발생
@@ -48,3 +49,5 @@ psd2excel이 아니라 psd2cell 비율을 사용해야 할 거 같은데 그간 
 
 
 
+=======
+>>>>>>> da3cf19bef6a968a529fe9263d8636d0a1142b06
