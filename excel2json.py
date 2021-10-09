@@ -35,11 +35,10 @@ for path in (file_list):
             excel_height_list.append(img.height)
             excel_imgs_height += img.height
 
-    if os.path.splitext(path)[1] == '.psd':
+    if os.path.splitext(path)[1] == '.psd' or os.path.splitext(path)[1] =='.psb':
         psd_name_list.append(path)
         path_jsx_json.append(file_path)
         psd = PSDImage.open(path)
-
         psd_height_list.append(psd.height)
         webtoon_height += psd.height
         psd_end_point_psd.append(webtoon_height)
@@ -53,9 +52,9 @@ end_row = web_imgs_excel[-1].anchor._from.row
 final = np.around((web_imgs_excel[1].anchor._from.row/web_imgs_excel[0].height) *web_imgs_excel[-1].height)
 final_end_row = end_row + final
 
-
-psd_row_list = np.around(np.array(psd_height_list) * (final_end_row / webtoon_height))
-every_ratio_row2psd = np.array(psd_height_list)/ np.array(psd_row_list)
+psd_row_list_b = np.array(psd_height_list) * (final_end_row / webtoon_height)
+psd_row_list = np.around(psd_row_list_b)
+every_ratio_row2psd = np.array(psd_height_list)/ np.array(psd_row_list_b)
 
 
 psd_num = len(psd_name_list)
@@ -100,8 +99,6 @@ with open('jsonFile.json', 'w', encoding='UTF-8') as w:
             psd_x += webtoon_width // 2
 
     json_file[psd_name_list[boundary]] = json_psd
-
-    print(json_file)
 
     json.dump(json_file, w, indent=4, ensure_ascii=False)
 
