@@ -34,7 +34,7 @@ for path in (file_list):
         for index, img in enumerate(web_imgs_excel):
             excel_height_list.append(img.height)
             excel_imgs_height += img.height
-
+    # PSD 및 PSB 파일
     if os.path.splitext(path)[1] == '.psd' or os.path.splitext(path)[1] =='.psb':
         psd_name_list.append(path)
         path_jsx_json.append(file_path)
@@ -92,12 +92,14 @@ with open('jsonFile.json', 'w', encoding='UTF-8') as w:
             if context == None:
                 continue
 
-            psd_y = count * every_ratio_row2psd[boundary]
+            if '\n' in context :
+                context = context.replace('\n','\r')
 
+            psd_y = count * every_ratio_row2psd[boundary]
             line = [['text', context], ['x', round(psd_x, 2)], ['y', round(psd_y, 2)]]
             json_psd.append(dict(line))
             psd_x += webtoon_width // 2
-
+    print(json_psd[2]['text']) # 두줄이상인거 찾기
     json_file[psd_name_list[boundary]] = json_psd
 
     json.dump(json_file, w, indent=4, ensure_ascii=False)
