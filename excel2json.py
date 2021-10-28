@@ -119,6 +119,7 @@ if __name__ == "__main__":
     with open('jsonFile.json', 'w', encoding='UTF-8') as w:
         json_file = {'psdPath': psd_path, 'psdName': file_name}
 
+        # psd파일 이름으로 key 생성
         for psd_name in file_name:
             json_file[psd_name] = []
 
@@ -126,6 +127,13 @@ if __name__ == "__main__":
         boundary = 0
         json_psd = []
 
+
+        # 엑셀 읽어오고 json에 저장해주기
+        '''
+        엑셀을 한줄한줄 읽어오는 과정에서 각 psd 범위(row로 표현된)를 참고하여 json에 저장한다.
+        psd_row_list : 각 psd가 엑셀내에서 몇개의 줄에 해당하는지 나타낸 리스트
+        ex) 처음부터 끝까지 내용을 읽어오는데 286번 row까지는 01.psd에 대한 대사에 해당하고, 그 이후 546개 줄은 02.psd에 대한 대사에 해당한다. 
+        '''
         for r in range(1, max_row + 1):
             if count > psd_row_list[boundary]-1:
                 json_file[file_name[boundary]] = json_psd
@@ -142,6 +150,7 @@ if __name__ == "__main__":
                 if context == None:
                     continue
 
+                # ExtendScript에서는 줄바꿈 기호를 '\n'이 아닌 '\r'을 사용한다.
                 if '\n' in context:
                     context = context.replace('\n', '\r')
 
