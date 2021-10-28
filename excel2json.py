@@ -1,108 +1,157 @@
+'''
+excel2json.py
+
+엑셀파일 내의 대사를 읽어오고, 레이어 생성할 위치를 계산하여 json형태로 저장시키는 코드
+
+마지막 수정일 : 2021-10-27
+이가영
+'''
+
 import os
 from psd_tools import PSDImage
 from openpyxl import load_workbook
 import numpy as np
 import json
 
-path_split = os.getcwd().split(os.path.sep)
-del path_split[0]
-path_jsx = '/'+'/'.join(path_split)
 
-path_dir = './'
-file_list = os.listdir(path_dir)
+def addressPSD():
+    """
+    폴더 내의 파일들 중 확장자가 psd, psb인 파일에 대한 절대주소, 이름 가져오는 함수
+
+    .. note:: json파일에 저장되는 정보
+              ExtendScript가 익숙치 않아서 py파일에서 작업함.
+             절대주소 - script에서 psd파일을 열기 위해서
+             이름 - json데이터의 key. 이를 통해 script에서 value에 접근함.
+
+    :return: `str` 엑셀파일절대주소(excelPath), `list` psd(b)파일의 절대주소(psdPath), `list` psd(b)파일이름(file_name)
+    """
+    path_split = os.getcwd().split(os.path.sep)
+    del path_split[0]
+
+    # ExtendScript에서는 window임에도 불구하고 폴더구분자가 '/'이다.
+    path_jsx = '/'+'/'.join(path_split)
+
+    path_dir = './'
+    file_list = os.listdir(path_dir)
+
+    psdPath=[]
+    file_name = []
+    for path in (file_list):
+        if path.startswith('~$'):
+            continue
+
+        if os.path.splitext(path)[1] == '.xlsx':
+            excelPath = path_jsx + '/' + path
+
+        if os.path.splitext(path)[1] == '.psd' or os.path.splitext(path)[1] =='.psb':
+            file_path = path_jsx + '/' + path
+            file_name.append(path)
+            psdPath.append(file_path)
+
+    return excelPath, psdPath, file_name
 
 
-webtoon_height = 0
-psd_height_list = []
-psd_end_point_psd = []
 
-excel_imgs_height = 0
-excel_height_list = []
 
-path_jsx_json=[]
-psd_name_list = []
-for path in (file_list):
-    if path.startswith('~$'):
-        continue
+def heigthPSD(pathList):
+    """
+    ratio 계산을 위해 모든 psd파일의 height를 합친 전체 height값과 각 psd파일의 height에 대한 list를 구하는 함수
 
-    file_path = path_jsx + '/' + path
+    .. note:: 파일이름(pathList)를 통해 psd파일을 열고 그때 height에 대해서 계산한다. (psd_tools API 사용)
 
-    if os.path.splitext(path)[1] == '.xlsx':
-        excel = load_workbook(file_path, data_only=True)
-        excel_sheet = excel.active
-        web_imgs_excel = excel_sheet._images
-        for index, img in enumerate(web_imgs_excel):
-            excel_height_list.append(img.height)
-            excel_imgs_height += img.height
-    # PSD 및 PSB 파일
-    if os.path.splitext(path)[1] == '.psd' or os.path.splitext(path)[1] =='.psb':
-        psd_name_list.append(path)
-        path_jsx_json.append(file_path)
+    :param pathList: `list` psd(b)파일이름
+    :return: `int` 작품 전체 psd의 height 값(height), `list` 각 psd(b)의 height(height_list)
+    """
+    global webtoon_width
+    height = 0
+    height_list = []
+    for path in pathList:
         psd = PSDImage.open(path)
-        psd_height_list.append(psd.height)
-        webtoon_height += psd.height
-        psd_end_point_psd.append(webtoon_height)
+        height_list.append(psd.height)
+        height += psd.height
+    webtoon_width = psd.width
+
+    return height, height_list
 
 
-webtoon_width = psd.width
-excel2psd = webtoon_height / excel_imgs_height
-psd2excel = excel_imgs_height / webtoon_height
+def rowoffExcel():
+    """
+    ratio 계산을 위해 전체 엑셀이미지가 몇번째 줄에서 끝나는지 구하는 함수
 
-end_row = web_imgs_excel[-1].anchor._from.row
-final = np.around((web_imgs_excel[1].anchor._from.row/web_imgs_excel[0].height) *web_imgs_excel[-1].height)
-final_end_row = end_row + final
+    .. note:: 엑셀이미지의 마지막 이미지는 psd파일에 포함되지 않음. 따라서 ratio 계산을 위해서는 똑같이 엑셀의 마지막 이미지를 포함하지 않은 상태로 row를 구해야함.
+              한마지로 엑셀이미지의 [-2]번째 이미지가 몇번째 row에서 끝나는지 그 값을 구하는 코드
+              Object.anchor._from.row는 해당 이미지가 위치한 첫번째 row를 반환하는 메소드로 [-1]번째 이미지의 반환값을 통해 [-2]번째 이미지의 마지막 row값을 구함.
 
-psd_row_list_b = np.array(psd_height_list) * (final_end_row / webtoon_height)
-psd_row_list = np.around(psd_row_list_b)
-every_ratio_row2psd = np.array(psd_height_list)/ np.array(psd_row_list_b)
+    :return: `int` 마지막 row 값(rowoff)
+    """
+    web_imgs_excel = excel_sheet._images
+    end_row = web_imgs_excel[-1].anchor._from.row
+    rowoff = end_row
 
-
-psd_num = len(psd_name_list)
-max_col = excel_sheet.max_column
-min_col = excel_sheet.min_column
-max_row = excel_sheet.max_row
+    return rowoff
 
 
-cell_count_per_psd_list = psd_row_list
-with open('jsonFile.json', 'w', encoding='UTF-8') as w:
-    json_file = {'psdPath' : path_jsx_json, 'psdName' : psd_name_list}
+if __name__ == "__main__":
+    excel_path, psd_path, file_name = addressPSD()         # 파일 path 정리
+    webtoon_height, psd_height_list = heigthPSD(file_name) # psd파일의 길이 계산
 
-    for psd_name in psd_name_list:
-        json_file[psd_name] = []
+    # 엑셀 읽어오기
+    excel = load_workbook(excel_path, data_only=True)
+    excel_sheet = excel.active
+    rowoff = rowoffExcel()      # 엑셀파일의 길이 계산
 
-    count = 0
-    boundary = 0
-    json_psd = []
+    # 엑셀내 대사들이 위치한 col, row 범위
+    max_col = excel_sheet.max_column
+    min_col = excel_sheet.min_column
+    max_row = excel_sheet.max_row
+
+    # ratio 계산
+    """
+    엑셀내의 전체 이미지와 대사들에 대해서 각 psd에 해당하는 범위를 나눠주기 위해서 ratio를 계산한다.
+    각 psd파일의 height를 엑셀의 row 개수로 변환하여 해당 row범위에 해당하는 대사를 json파일에 넣어준다.
+    ex ) 01.psd의 height가 12311이라면 이는 엑셀내의 286개의 row에 해당하고 해당 row 범위에 있는 대사들을 json파일에 '01.psd'라는 key값에 대한 value로 저장한다.  
+    """
+    psd_row_list = np.around(np.array(psd_height_list) * (rowoff / webtoon_height))
+    every_ratio_row2psd = np.array(psd_height_list) / np.array(psd_row_list)
 
 
-    for r in range(1,max_row+1):
-        psd_x = webtoon_width//4
-        count += 1
-        if count > cell_count_per_psd_list[boundary]:
-            json_file[psd_name_list[boundary]] = json_psd
-            count = 0
-            boundary += 1
-            json_file[psd_name_list[boundary]]
-            json_psd = []
+    # JSON파일 생성하기
+    with open('jsonFile.json', 'w', encoding='UTF-8') as w:
+        json_file = {'psdPath': psd_path, 'psdName': file_name}
 
+        for psd_name in file_name:
+            json_file[psd_name] = []
 
-        for c in range(min_col, max_col + 1):
-            context = excel_sheet.cell(row=r, column=c).value
+        count = 0
+        boundary = 0
+        json_psd = []
 
-            if context == None:
-                continue
+        for r in range(1, max_row + 1):
+            if count > psd_row_list[boundary]-1:
+                json_file[file_name[boundary]] = json_psd
+                count = 0
+                boundary += 1
+                json_file[file_name[boundary]]
+                json_psd = []
 
-            if '\n' in context :
-                context = context.replace('\n','\r')
+            psd_x = webtoon_width // 4
+            count += 1
 
-            psd_y = count * every_ratio_row2psd[boundary]
-            line = [['text', context], ['x', round(psd_x, 2)], ['y', round(psd_y, 2)]]
-            json_psd.append(dict(line))
-            psd_x += webtoon_width // 2
-    print(json_psd[2]['text']) # 두줄이상인거 찾기
-    json_file[psd_name_list[boundary]] = json_psd
+            for c in range(min_col, max_col + 1):
+                context = excel_sheet.cell(row=r, column=c).value
+                if context == None:
+                    continue
 
-    json.dump(json_file, w, indent=4, ensure_ascii=False)
+                if '\n' in context:
+                    context = context.replace('\n', '\r')
 
-    print("json파일 생성완료")
+                psd_y = count * every_ratio_row2psd[boundary]
+                line = [['text', context], ['x', round(psd_x, 2)], ['y', round(psd_y, 2)]]
+                json_psd.append(dict(line))
+                psd_x += webtoon_width // 2
 
+        json_file[file_name[boundary]] = json_psd
+
+        json.dump(json_file, w, indent=4, ensure_ascii=False)
+
+        print("json파일 생성완료")
