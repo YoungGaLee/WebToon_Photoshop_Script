@@ -6,13 +6,11 @@ excel2json.py
 마지막 수정일 : 2021-10-27
 이가영
 '''
-
 import os
 from psd_tools import PSDImage
 from openpyxl import load_workbook
 import numpy as np
 import json
-
 
 def addressPSD():
     """
@@ -164,3 +162,4 @@ if __name__ == "__main__":
         json.dump(json_file, w, indent=4, ensure_ascii=False)
 
         print("json파일 생성완료")
+
