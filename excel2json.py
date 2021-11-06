@@ -69,6 +69,9 @@ def heigthPSD(pathList):
         height += psd.height
     webtoon_width = psd.width
 
+    print(height_list)
+    print(height)
+
     return height, height_list
 
 
@@ -125,7 +128,6 @@ if __name__ == "__main__":
         boundary = 0
         json_psd = []
 
-
         # 엑셀 읽어오고 json에 저장해주기
         '''
         엑셀을 한줄한줄 읽어오는 과정에서 각 psd 범위(row로 표현된)를 참고하여 json에 저장한다.
@@ -133,11 +135,10 @@ if __name__ == "__main__":
         ex) 처음부터 끝까지 내용을 읽어오는데 286번 row까지는 01.psd에 대한 대사에 해당하고, 그 이후 546개 줄은 02.psd에 대한 대사에 해당한다. 
         '''
         for r in range(1, max_row + 1):
-            if count > psd_row_list[boundary]-1:
+            if count > psd_row_list[boundary]:
                 json_file[file_name[boundary]] = json_psd
                 count = 0
                 boundary += 1
-                json_file[file_name[boundary]]
                 json_psd = []
 
             psd_x = webtoon_width // 4
@@ -152,12 +153,12 @@ if __name__ == "__main__":
                 if '\n' in context:
                     context = context.replace('\n', '\r')
 
-                psd_y = count * every_ratio_row2psd[boundary]
+                psd_y = count * every_ratio_row2psd[boundary-1]
                 line = [['text', context], ['x', round(psd_x, 2)], ['y', round(psd_y, 2)]]
                 json_psd.append(dict(line))
                 psd_x += webtoon_width // 2
 
-        json_file[file_name[boundary]] = json_psd
+        json_file[file_name[boundary-1]] = json_psd
 
         json.dump(json_file, w, indent=4, ensure_ascii=False)
 
