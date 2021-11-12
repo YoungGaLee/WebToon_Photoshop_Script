@@ -50,7 +50,7 @@ def addressPSD():
             continue
 
         if os.path.splitext(path)[1] == '.xlsx':
-            assert excelPath != '', '폴더내 엑셀파일이 두개이상입니다.'
+            assert excelPath == '', '폴더 내 엑셀파일이 두개 이상입니다. 확인해주세요.'
             excelPath = path_jsx + '/' + path
 
 
@@ -169,13 +169,13 @@ if __name__ == "__main__":
 
             # print(r,max_row)
 
-            # print(psd_row_list,"psd_row_list")
+            print(psd_row_list,"psd_row_list")
 
-            if count > psd_row_list[boundary]+1:
+            if count >= psd_row_list[boundary]:
                 # print(psd_row_list,psd_row_list[boundary])
                 json_file[file_name[boundary]] = json_psd
                 row_list.append(r)
-                # print(row_list)
+
                 count = 0
                 boundary += 1
                 json_psd = []
@@ -186,8 +186,8 @@ if __name__ == "__main__":
             for c in range(min_col, max_col + 1):
                 context = excel_sheet.cell(row=r, column=c).value
 
-                # print(r, context) # r이라는 열에 context
-                # print(count,row_list)
+                print(r, file_name[boundary], context) # r이라는 열에 context
+                print(row_list, "row_list")
                 # print(r, file_name[boundary],"얍")
                 # print(boundary,context)
                 if context == None:
