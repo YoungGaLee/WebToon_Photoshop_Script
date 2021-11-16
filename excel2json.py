@@ -13,6 +13,8 @@ import numpy as np
 import json
 import glob
 import natsort    # pip install natsort
+import os
+from natsort import os_sorted
 
 def addressPSD():
     """
@@ -32,13 +34,12 @@ def addressPSD():
     path_jsx = '/'+'/'.join(path_split)
 
     path_dir = './'
-    file_list = os.listdir(path_dir)
-
-
+    file_list = os_sorted(os.listdir(path_dir))
+    # natsort.natsorted(file_list)
     # print(file_list,"sort어떻게 되고 있는거지")
 
-    # fl = sorted(glob.glob('*'), key=os.path.getmtime)
-    fl = sorted(glob.glob('*'),reverse=True)
+    # fl = sorted(glob.glob('*'))#, key=os.path.getmtime)
+    # fl = sorted(glob.glob('*'),reverse=True)
     # print(fl, "둘이 방식이 다른가")
 
     psdPath=[]
@@ -60,7 +61,6 @@ def addressPSD():
             psdPath.append(file_path)
 
     sorted_file_name = natsort.natsorted(file_name)
-
     return excelPath, psdPath, sorted_file_name
 
 
@@ -111,10 +111,10 @@ def heightExcel():
 if __name__ == "__main__":
     excel_path, psd_path, file_name = addressPSD()         # 파일 path 정리
     webtoon_height, psd_height_list = heigthPSD(file_name) # psd파일의 길이 계산
-    print(file_name)
-    print(excel_path)
+    # print(file_name)
+    # print(excel_path)
     # print(psd_height_list)
-    # print(webtoon_height)
+    print('총 PSD height : ',webtoon_height)
 
 
 
@@ -122,6 +122,7 @@ if __name__ == "__main__":
     excel = load_workbook(excel_path, data_only=True)
     excel_sheet = excel.active
     webtoon_excel_height = heightExcel()      # 엑셀파일의 -2번째 이미지까지의 길이
+    print('엑셀 마지막 row :',webtoon_excel_height)
 
     # 엑셀내 대사들이 위치한 col, row 범위
     max_col = excel_sheet.max_column
@@ -134,13 +135,29 @@ if __name__ == "__main__":
     각 psd파일의 height를 엑셀의 row 개수로 변환하여 해당 row범위에 해당하는 대사를 json파일에 넣어준다.
     ex ) 01.psd의 height가 12311이라면 이는 엑셀내의 286개의 row에 해당하고 해당 row 범위에 있는 대사들을 json파일에 '01.psd'라는 key값에 대한 value로 저장한다.  
     """
+    print("PSD2Excel ratio : ", webtoon_excel_height / webtoon_height)
+    print()
+    psd_row_list_2 = np.array(psd_height_list) * (webtoon_excel_height / webtoon_height)
     psd_row_list = np.around(np.array(psd_height_list) * (webtoon_excel_height / webtoon_height))
+    print('원본 PSD height : ', psd_height_list)
+    print()
+    print('row로 변환되어 표현된 height : ', psd_row_list_2)
+    print('row로 변환되어 표현된 height (반올림) : ',psd_row_list)
+
+
+    b = []
+    a = 1
+    for i in psd_row_list_2:
+        a+=i
+        b.append(round(a,3))
+    print('PSD시작점 row값 (원본) : ',b)
+
+
+
     every_ratio_row2psd = np.array(psd_height_list) / np.array(psd_row_list)
 
     # print(webtoon_excel_height,"webtoon_excel_height")
     # print(webtoon_height,"webtoon_height")
-    # print(psd_height_list,"psd_height_list")
-    # print(psd_row_list,"psd_row_list")
     # print(every_ratio_row2psd,"every_ratio_row2psd")
 
 
@@ -167,12 +184,12 @@ if __name__ == "__main__":
         for r in range(1, max_row + 1):
 
 
-            # print(r,max_row)
+            # print(r,max_row,count,"ajskdflas")
 
-            print(psd_row_list,"psd_row_list")
 
             if count >= psd_row_list[boundary]:
                 # print(psd_row_list,psd_row_list[boundary])
+
                 json_file[file_name[boundary]] = json_psd
                 row_list.append(r)
 
@@ -182,12 +199,15 @@ if __name__ == "__main__":
 
             psd_x = webtoon_width // 4
             count += 1
+            # print(psd_row_list[boundary],r, count)
 
             for c in range(min_col, max_col + 1):
                 context = excel_sheet.cell(row=r, column=c).value
+                # print(context,r,c, " context,r,c")
+                # print(count, r, file_name[boundary], context)
 
-                print(r, file_name[boundary], context) # r이라는 열에 context
-                print(row_list, "row_list")
+                # print(r, file_name[boundary], context) # r이라는 열에 context
+                # print(row_list, "row_list")
                 # print(r, file_name[boundary],"얍")
                 # print(boundary,context)
                 if context == None:
@@ -211,10 +231,9 @@ if __name__ == "__main__":
                 line = [['text', context], ['x', round(psd_x, 2)], ['y', round(psd_y, 2)]]
                 json_psd.append(dict(line))
                 psd_x += webtoon_width // 2
-
+        print("PSD시작점 row값 (실제 읽는 줄) : ", row_list)
         json_file[file_name[boundary]] = json_psd
 
         json.dump(json_file, w, indent=4, ensure_ascii=False)
 
         print("json파일 생성완료")
-
