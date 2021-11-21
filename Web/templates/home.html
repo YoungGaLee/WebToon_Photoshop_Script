@@ -1,10 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>YCOM : )</title>
+
+        <!--내부스타일시트-->
+        <style>
+            * {
+               text-align:center;
+               font-family: "12롯데마트드림Medium","Times New Roman", serif;
+               line-height: 1.5em;
+               }
+
+            button {
+                    border:0;
+                    border-radius: 10px;
+                    outline:1px;
+                    cursor:pointer;
+                    font-size:30px;
+
+                    padding:60px 60px;
+                    width : 50%;
+
+                    text-align: center;
+                    margin: auto;
+                    display:block;
+                    }
+        </style>
+    </head>
+
+    <body>
+        <h1>YCOM 자동화 프로그램</h1>
+        <h2>웹 제작</h2><br>
+        <h3>제작목표</h3>
+        <p><ins>excel2json.py, YcomScript.jsx</ins> 등의 파일 실행 없이 <br>web을 통해
+            레이어 생성을 마친 PSD파일들을 <b>다운로드</b> 받을 수 있도록 한다.</p>
+
+        <form>
+            <div class="button">
+                <button type="button" onclick="location.href='/download'">시작하기</button>
+            </div>
+            <!--submit : action에 정의한 페이지에 전송됨
+                reset button-->
+            <!--<button>은 전체 html을 보냄.
+                <input> button은 텍스트만 보낸다.-->
+        </form>
+
+    </body>
 </html>
