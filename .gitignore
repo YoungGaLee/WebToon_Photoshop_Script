@@ -1,3 +1,4 @@
 # ignore all .psd files
 *.psd
+*.psb
 *.json
