@@ -2,20 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>영어팀 웹툰저장소</title>
+    <style>
+        * {
+               text-align:center;
+               font-family: "12롯데마트드림Medium","Times New Roman", serif;
+               line-height: 1.5em;
+               }
+
+        button {
+                border:0;
+                border-radius: 10px;
+                outline:1px;
+                cursor:pointer;
+                font-size:30px;
+
+                padding:60px 60px 60px 60px;
+                width : 50%;
+
+                text-align: center;
+                margin: auto;
+                display:block;
+                }
+    </style>
 </head>
 <body>
 
     {% for path in path_data %}
-            <p>{{path}}</p>
-            <a href="/download_ENG">폴더 다운로드</a>
-
-            <form methoaddd="get" action="download_ENG">
-                <button type="submit">Download!</button>
+            <form method="post" action="\post" class="input-form">
+                <textarea type="text" name='id_name' value="tmp tmp tmp" class="input-text"></textarea>
+                <input type="submit" value="submit" class="input-btn">
+                <button type="submit">{{path}} Download!</button>
             </form>
+            <br>
     {% endfor %}
 
 
 
 </body>
 </html>
+<!--페이지이동을 할 필요는 없음 다운로드라는 action 만 이루어지면 됨, 따라서 url_for ㄴㄴ-->
+<!--html에서 backend로 변수 전달 -->

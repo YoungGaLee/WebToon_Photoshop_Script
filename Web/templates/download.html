@@ -1,41 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>웹툰 저장소</title> <!-- 아무표시 안되네.. alert("레이어 생성된 psd파일을 내려받습니다.")-->
-    <style>
-        * {
-               text-align:center;
-               font-family: "12롯데마트드림Medium","Times New Roman", serif;
-               line-height: 1.5em;
-               }
+{% extends 'layout.html' %}
+{% block content %}
 
-        button {
-                border:0;
-                border-radius: 10px;
-                outline:1px;
-                cursor:pointer;
-                font-size:30px;
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>웹툰 저장소</title> <!-- 아무표시 안되네.. alert("레이어 생성된 psd파일을 내려받습니다.")-->
+            <style>
+                * {
+                       text-align:center;
+                       font-family: "12롯데마트드림Medium","Times New Roman", serif;
+                       line-height: 1.5em;
+                       }
 
-                padding:60px 60px 60px 60px;
-                width : 50%;
+                button {
+                        border:0;
+                        border-radius: 10px;
+                        outline:1px;
+                        cursor:pointer;
+                        font-size:30px;
 
-                text-align: center;
-                margin: auto;
-                display:block;
-                }
-    </style>
-</head>
-<body>
-    <form>
-        {% for path in path_data %}
-            <div class="button">
-                <button type="button" onclick="location.href='{{ url_for(path) }}'">{{path}}</button>
+                        padding:60px 60px 60px 60px;
+                        width : 50%;
 
-            </div>
-            <br>
-        {% endfor %}
-    </form>
+                        text-align: center;
+                        margin: auto;
+                        display:block;
+                        }
+            </style>
 
-</body>
-</html>
+        </head>
+        <body>
+            <form>
+                {% for path in path_data %}
+                    <div class="button">
+
+                        <button type="button" onclick="location.href='{{ url_for(path) }}'">{{path}}</button>
+
+                    </div>
+                    <br>
+                {% endfor %}
+            </form>
+
+        </body>
+    </html>
+{% endblock %}

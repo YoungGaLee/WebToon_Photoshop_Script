@@ -1,4 +1,6 @@
-from flask import Flask, render_template, send_file
+from flask import Flask, render_template, send_file, request
+# render_template(html파일 불러오기), request(요청방식 GET(url/보임),POST(http/안보임) 정해줌) : 클라이언트에서 서버로 정보를 전송하는 모듈
+# send_file : 파일 다운로드
 import os
 
 app = Flask(__name__)
@@ -32,6 +34,14 @@ def download_ENG():
                      mimetype='application/psd',
                      attachment_filename='test01.psd',# 다운받아지는 파일 이름.
                      as_attachment=True)
+
+@app.route('/post', methods=['POST'])
+def post():
+    if request.method == 'POST':
+        value = request.form['id_name']
+        value = str(value)
+        print(value)
+    return render_template('post.html' ,path_data=value)
 
 @app.route('/japan')
 def japan():
