@@ -29,10 +29,10 @@
 <body>
 
     {% for path in path_data %}
-            <form method="post" action="\post" class="input-form">
-                <textarea type="text" name='id_name' value="tmp tmp tmp" class="input-text"></textarea>
-                <input type="submit" value="submit" class="input-btn">
-                <button type="submit">{{path}} Download!</button>
+            <form method="post" action="/download_ENG" >
+
+                <button type="submit" formmethod="post" name="name" value="{{path}}">{{path}} Download!</button>
+
             </form>
             <br>
     {% endfor %}

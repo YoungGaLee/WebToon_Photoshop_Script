@@ -9,6 +9,7 @@ app = Flask(__name__)
 def home():
     return render_template("home.html")
 # @app.route('/home')
+
 @app.route('/user/<user_name>/<int:user_id>')
 def user(user_name, user_id):
     return f'Hello, {user_name}({user_id})!'
@@ -27,8 +28,11 @@ def english():
     files_list = os.listdir('./Server/english')
     return render_template("english_repo.html", path_data=files_list)
 
-@app.route('/download_ENG')
+@app.route('/download_ENG', methods=['POST'])
 def download_ENG():
+    if request.method == 'POST':
+        webtoon = request.form['name']
+        print(webtoon)
     files_list = './Server/english/test/test01.psd'
     return send_file(files_list,
                      mimetype='application/psd',
